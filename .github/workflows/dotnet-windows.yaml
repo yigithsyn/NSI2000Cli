@@ -13,32 +13,64 @@ on:
 
 jobs:
   build:
-    name: Build and Test (.NET 10 / Windows)
+    name: Build, Publish & Package MSI
     runs-on: windows-latest
 
     steps:
-    # Step 1: Check out the repository source code
     - name: Checkout Source Code
       uses: actions/checkout@v4
 
-    # Step 2: Set up the .NET 10 SDK environment
     - name: Setup .NET 10 SDK
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '10.0.x'
 
-    # Step 3: Clear and restore NuGet dependencies
+    # WiX 5 CLI'yi global tool olarak kur
+    - name: Install WiX Toolset
+      run: dotnet tool install --global wix --version 5.0.2
+
+    # WiX UI extension'ı ekle
+    - name: Add WiX UI Extension
+      run: wix extension add WixToolset.UI.wixext/5.0.2
+
     - name: Restore Dependencies
       run: dotnet restore
 
-    # Step 4: Build the application in Release mode
     - name: Build Solution
       run: dotnet build --configuration Release --no-restore
 
-    # Step 5: Publish the application in Release mode
+    # Publish çıktısını /publish klasörüne al
     - name: Publish Solution
-      run: dotnet publish -c Release -r win-x64 --self-contained false
+      run: >
+        dotnet publish -c Release -r win-x64
+        --self-contained true
+        -o publish
 
-    # Step 6: Run unit tests and collect code coverage (optional)
+    # Tag'den versiyon numarasını çıkar (v1.2.3 → 1.2.3)
+    - name: Extract Version
+      id: version
+      shell: bash
+      run: echo "VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_OUTPUT
+
+    # MSI oluştur
+    - name: Build MSI
+      working-directory: installer
+      env:
+        RELEASE_VERSION: ${{ steps.version.outputs.VERSION }}
+      run: wix build Product.wxs -o ../NSI2000Cli-Setup-${{ steps.version.outputs.VERSION }}.msi
+
     - name: Run Tests
       run: dotnet test --configuration Release --no-build --verbosity normal
+
+    # GitHub Release oluştur ve MSI'yi yükle
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: ${{ github.ref_name }}
+        name: "NSI2000Cli ${{ github.ref_name }}"
+        draft: false
+        prerelease: false
+        files: |
+          NSI2000Cli-Setup-${{ steps.version.outputs.VERSION }}.msi
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

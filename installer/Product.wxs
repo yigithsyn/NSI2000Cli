@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
+
+  <Package
+    Name="NSI2000Cli"
+    Manufacturer="Hüseyin YİĞİT"
+    Version="$(env.RELEASE_VERSION)"
+    UpgradeCode="6e856f00-f95f-4e67-94cc-e1ea69acc283"
+    Scope="perMachine">
+
+    <MajorUpgrade DowngradeErrorMessage="Daha yeni bir sürüm zaten kurulu." />
+
+    <ui:WixUI Id="WixUI_InstallDir" />
+    <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
+
+    <MediaTemplate EmbedCab="yes" />
+
+    <Feature Id="ProductFeature" Title="NSI2000Cli" Level="1">
+      <ComponentGroupRef Id="ProductComponents" />
+    </Feature>
+
+    <StandardDirectory Id="ProgramFiles64Folder">
+      <Directory Id="INSTALLFOLDER" Name="NSI2000Cli" />
+    </StandardDirectory>
+
+    <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
+      <Component Id="MainExecutable">
+        <File Source="../publish/NSI2000Cli.exe" KeyPath="yes" />
+      </Component>
+      <!-- publish klasöründeki tüm dosyalar için ek Component'lar -->
+      <Component Id="RuntimeFiles">
+        <File Source="../publish/NSI2000Cli.dll" />
+        <File Source="../publish/NSI2000Cli.runtimeconfig.json" />
+      </Component>
+    </ComponentGroup>
+
+  </Package>
+</Wix>
