@@ -1,0 +1,35 @@
+name: .NET 10 Windows CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    name: Build and Test (.NET 10 / Windows)
+    runs-on: windows-latest
+
+    steps:
+    # Step 1: Check out the repository source code
+    - name: Checkout Source Code
+      uses: actions/checkout@v4
+
+    # Step 2: Set up the .NET 10 SDK environment
+    - name: Setup .NET 10 SDK
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '10.0.x'
+
+    # Step 3: Clear and restore NuGet dependencies
+    - name: Restore Dependencies
+      run: dotnet restore
+
+    # Step 4: Build the application in Release mode
+    - name: Build Solution
+      run: dotnet build --configuration Release --no-restore
+
+    # Step 5: Run unit tests and collect code coverage (optional)
+    - name: Run Tests
+      run: dotnet test --configuration Release --no-build --verbosity normal
