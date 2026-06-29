@@ -31,7 +31,7 @@ jobs:
 
     # WiX UI extension'ı ekle
     - name: Add WiX UI Extension
-      run: wix extension add WixToolset.UI.wixext/5.0.2
+      run: wix extension add WixToolset.UI.wixext/5.0.2 --global
 
     - name: Restore Dependencies
       run: dotnet restore
