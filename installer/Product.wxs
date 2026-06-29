@@ -4,7 +4,7 @@
 
   <Package
     Name="NSI2000Cli"
-    Manufacturer="Hüseyin YİĞİT"
+    Manufacturer="Huseyin YIGIT"
     Version="$(env.RELEASE_VERSION)"
     UpgradeCode="6e856f00-f95f-4e67-94cc-e1ea69acc283"
     Scope="perMachine">
