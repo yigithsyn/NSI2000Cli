@@ -57,7 +57,7 @@ jobs:
       working-directory: installer
       env:
         RELEASE_VERSION: ${{ steps.version.outputs.VERSION }}
-      run: wix build Product.wxs -o ../NSI2000Cli-Setup-${{ steps.version.outputs.VERSION }}.msi
+      run: wix build Product.wxs -ext WixToolset.UI.wixext -o ../NSI2000Cli-Setup-${{ steps.version.outputs.VERSION }}.msi
 
     - name: Run Tests
       run: dotnet test --configuration Release --no-build --verbosity normal
